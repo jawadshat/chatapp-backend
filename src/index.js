@@ -40,7 +40,7 @@ app.use(
       return cb(new Error("Not allowed by CORS"));
     },
     credentials: true,
-  })
+  }),
 );
 app.use(express.json());
 
@@ -150,7 +150,7 @@ io.on("connection", async (socket) => {
       }
 
       const existing = msg.reactions.findIndex(
-        (r) => r.user.toString() === me && r.emoji === normalized
+        (r) => r.user.toString() === me && r.emoji === normalized,
       );
       if (existing >= 0) msg.reactions.splice(existing, 1);
       else msg.reactions.push({ user: userId, emoji: normalized });
@@ -170,8 +170,14 @@ io.on("connection", async (socket) => {
         })),
       };
 
-      io.to(`user:${refreshed.sender._id.toString()}`).emit("message_reactions", payload);
-      io.to(`user:${refreshed.recipient._id.toString()}`).emit("message_reactions", payload);
+      io.to(`user:${refreshed.sender._id.toString()}`).emit(
+        "message_reactions",
+        payload,
+      );
+      io.to(`user:${refreshed.recipient._id.toString()}`).emit(
+        "message_reactions",
+        payload,
+      );
       cb?.({ ok: true, ...payload });
     } catch (e) {
       console.error(e);
@@ -227,7 +233,9 @@ io.on("connection", async (socket) => {
     try {
       const target = String(toUserId || "");
       if (!target) return cb?.({ error: "Invalid decline target" });
-      io.to(`user:${target}`).emit("call_declined", { fromUserId: userId.toString() });
+      io.to(`user:${target}`).emit("call_declined", {
+        fromUserId: userId.toString(),
+      });
       cb?.({ ok: true });
     } catch (e) {
       console.error(e);
@@ -239,7 +247,9 @@ io.on("connection", async (socket) => {
     try {
       const target = String(toUserId || "");
       if (!target) return cb?.({ error: "Invalid end target" });
-      io.to(`user:${target}`).emit("call_ended", { fromUserId: userId.toString() });
+      io.to(`user:${target}`).emit("call_ended", {
+        fromUserId: userId.toString(),
+      });
       cb?.({ ok: true });
     } catch (e) {
       console.error(e);
@@ -261,7 +271,7 @@ async function start() {
   console.log("MongoDB connected");
 
   server.listen(PORT, () => {
-    console.log(`Server http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
   });
 }
 
